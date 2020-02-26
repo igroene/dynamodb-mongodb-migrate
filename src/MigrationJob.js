@@ -18,6 +18,8 @@ class MigrationJob {
         this.filterExpression = null;
         this.expressionAttributeNames = null;
         this.expressionAttributeValues = null;
+	this.segment = null;
+	this.totalSegments = null;
         this.dynamoDbReadThroughput = dynamoDbReadThroughput ? Number(dynamoDbReadThroughput) : 25;
         this.limiter = new RateLimiter(this.dynamoDbReadThroughput, 1000);
         this._removeTokens = (tokenCount) => {
@@ -43,6 +45,11 @@ class MigrationJob {
         this.expressionAttributeValues = expressionAttributeValues;
     }
 
+   setParallelism(segmentNum, totalSegments) {
+	this.segment = segmentNum;
+	this.totalSegments = totalSegments;
+   }
+
     run() {
         let ctx = this;
         return new Promise(async (resolve, reject) => {
@@ -51,7 +58,7 @@ class MigrationJob {
                 do {
                     startTime = new Date().getTime();
                     await ctx._removeTokens(permitsToConsume);
-                    let sourceItemResponse = await ctx.dynamoDBDAO.scan(ctx.filterExpression, ctx.expressionAttributeNames, ctx.expressionAttributeValues, lastEvalKey, ctx.dynamodbEvalLimit);
+                    let sourceItemResponse = await ctx.dynamoDBDAO.scan(ctx.filterExpression, ctx.expressionAttributeNames, ctx.expressionAttributeValues, lastEvalKey, ctx.dynamodbEvalLimit, ctx.segment, ctx.totalSegments);
                     totalItemCount += sourceItemResponse.Count;
                     let consumedCapacity = sourceItemResponse.ConsumedCapacity.CapacityUnits;
                     console.log('Consumed capacity ', consumedCapacity);

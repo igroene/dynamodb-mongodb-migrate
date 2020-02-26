@@ -47,7 +47,7 @@ class DynamoDBDAO {
         });
     }
 
-    scan(filterExp, expAttrNames, expAttrValues,lastEvalKey, limit) {
+    scan(filterExp, expAttrNames, expAttrValues,lastEvalKey, limit, segment, totalSegments) {
         let ctx = this;
         return new Promise((resolve, reject) => {
             try {
@@ -69,6 +69,10 @@ class DynamoDBDAO {
                 if(lastEvalKey){
                     params.ExclusiveStartKey = lastEvalKey;
                 }
+                if (segment && totalSegments) {
+                    params.Segment = segment;
+                    params.TotalSegments = totalSegments;
+		}
                 params.ReturnConsumedCapacity = 'TOTAL';
                 ctx.docClient.scan(params, function (error, response) {
                     if (error) {

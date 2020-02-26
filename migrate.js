@@ -6,6 +6,11 @@ const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
     region: config.AWS_REGION
 });
+// get parallel params
+const args = process.argv;
+const segmentNum = args[2];
+const totalSegments = args[3];
+
 const fs = require('fs');
 
 function loadMapperFile() {
@@ -29,9 +34,9 @@ function loadMapperFile() {
 
 (async () => {
     try {
-        console.log('Loading mapper file...')
-        await loadMapperFile();
-        console.log('Mapper file loaded')
+//        console.log('Loading mapper file...')
+//        await loadMapperFile();
+//        console.log('Mapper file loaded')
         const MigrationJob = require('./index');
         const metadata = require('./metadata');
 
@@ -48,6 +53,10 @@ function loadMapperFile() {
 
         const migrationJob = new MigrationJob(config.DYNAMODB_TABLE_NAME, config.MONGODB_COLLECTION_NAME, config.MONGODB_DATABASE_NAME,sourceConnectionOptions,targetConnectionOptions, 100, config.DYNAMODB_READ_THROUGHPUT);
         migrationJob.setSourcefilterExpression(metadata.filterExpression, metadata.expressionAttributeNames, metadata.expressionAttributeValues);
+
+        if (segmentNum && totalSegments) {
+            migrationJob.setParallelism(segmentNum, totalSegments);
+	}
         if (metadata.filterFunction) {
             migrationJob.setFilterFunction(metadata.filterFunction);
         }
@@ -63,6 +72,3 @@ function loadMapperFile() {
         process.exit(1);
     }
 })();
-
-
-
