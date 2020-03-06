@@ -51,7 +51,7 @@ function loadMapperFile() {
             password: config.MONGODB_PASSWORD
         };
 
-        const migrationJob = new MigrationJob(config.DYNAMODB_TABLE_NAME, config.MONGODB_COLLECTION_NAME, config.MONGODB_DATABASE_NAME,sourceConnectionOptions,targetConnectionOptions, 100, config.DYNAMODB_READ_THROUGHPUT);
+        const migrationJob = new MigrationJob(config.DYNAMODB_TABLE_NAME, config.MONGODB_COLLECTION_NAME, config.MONGODB_DATABASE_NAME,sourceConnectionOptions,targetConnectionOptions, 10000, config.DYNAMODB_READ_THROUGHPUT);
         migrationJob.setSourcefilterExpression(metadata.filterExpression, metadata.expressionAttributeNames, metadata.expressionAttributeValues);
 
         if (segmentNum && totalSegments) {
