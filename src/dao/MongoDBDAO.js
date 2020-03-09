@@ -19,7 +19,8 @@ class MongoDBDAO {
                 updateOne: {
                     filter: { _id: item['_id'] },
                     update: {
-                        $set: lodash.omit(item, '_id')
+                   //     $set: lodash.omit(item, '_id')
+                        $set: item
                     },
                     upsert: true
                 }
