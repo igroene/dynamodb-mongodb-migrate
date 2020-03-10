@@ -14,19 +14,15 @@ class MongoDBDAO {
     async intertOrUpdateItems(items) {
         let dbConn = await MongoDBConnector.getConnection(this.databaseName,this.host,this.user,this.password);
         let collection = dbConn.collection(this.tableName);
+	var order = {};
+	order['ordered'] = false;
         let bulkWriteReqArray = lodash.map(items, (item) => {
             return {
-                updateOne: {
-                    filter: { _id: item['_id'] },
-                    update: {
-                   //     $set: lodash.omit(item, '_id')
-                        $set: item
-                    },
-                    upsert: true
+		insertOne: item
                 }
             }
         });
-        return collection.bulkWrite(bulkWriteReqArray);
+        return collection.bulkWrite(bulkWriteReqArray, order);
     }
 }
 
