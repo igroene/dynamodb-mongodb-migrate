@@ -38,7 +38,7 @@ function loadMapperFile() {
 //        await loadMapperFile();
 //        console.log('Mapper file loaded')
         const MigrationJob = require('./index');
-        const metadata = require('./metadata');
+        const metadata = require('../metadata/'+config.MONGODB_COLLECTION_NAME+'/metadata');
 
         let sourceConnectionOptions = {
             region: config.AWS_REGION,
