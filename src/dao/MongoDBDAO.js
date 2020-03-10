@@ -20,7 +20,6 @@ class MongoDBDAO {
             return {
 		insertOne: item
                 }
-            }
         });
         return collection.bulkWrite(bulkWriteReqArray, order);
     }
