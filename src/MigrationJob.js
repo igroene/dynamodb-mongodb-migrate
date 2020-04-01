@@ -84,7 +84,7 @@ class MigrationJob {
                                 console.log('Inserted mongodb doc count : ', e.result.result.nInserted);
                             }
                             else {
-                                console.log(e);
+                                console.error(e);
                             }
 		        }
 		    }
