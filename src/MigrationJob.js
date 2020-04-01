@@ -79,9 +79,13 @@ class MigrationJob {
                             console.log('Inserted mongodb doc count : ', results.insertedCount);
                     	}
 		    catch(e) {
-			console.log(e.result.result.writeErrors);
-                        console.log('Inserted mongodb doc count : ', e.result.result.nInserted);
-		    	}
+                        if ('result' in e) {
+                            console.log(e.result.result.writeErrors);
+                            console.log('Inserted mongodb doc count : ', e.result.result.nInserted);
+                        }
+                        else {
+                            console.log(e);
+                        }
 		    }
                     if (sourceItemResponse && sourceItemResponse.LastEvaluatedKey) {
                         lastEvalKey = sourceItemResponse.LastEvaluatedKey;
