@@ -78,14 +78,15 @@ class MigrationJob {
                             let results = await ctx.mongoDBDAO.intertOrUpdateItems(targetItems);
                             console.log('Inserted mongodb doc count : ', results.insertedCount);
                     	}
-		    catch(e) {
-                        if ('result' in e) {
-                            console.log(e.result.result.writeErrors);
-                            console.log('Inserted mongodb doc count : ', e.result.result.nInserted);
-                        }
-                        else {
-                            console.log(e);
-                        }
+		        catch(e) {
+                            if ('result' in e) {
+                                console.log(e.result.result.writeErrors);
+                                console.log('Inserted mongodb doc count : ', e.result.result.nInserted);
+                            }
+                            else {
+                                console.log(e);
+                            }
+		        }
 		    }
                     if (sourceItemResponse && sourceItemResponse.LastEvaluatedKey) {
                         lastEvalKey = sourceItemResponse.LastEvaluatedKey;
