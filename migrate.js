@@ -10,6 +10,7 @@ const s3 = new AWS.S3({
 const args = process.argv;
 const segmentNum = args[2];
 const totalSegments = args[3];
+const lastEvalKey= args[4];
 
 const fs = require('fs');
 
@@ -51,12 +52,15 @@ function loadMapperFile() {
             password: config.MONGODB_PASSWORD
         };
 
-        const migrationJob = new MigrationJob(config.DYNAMODB_TABLE_NAME, config.MONGODB_COLLECTION_NAME, config.MONGODB_DATABASE_NAME,sourceConnectionOptions,targetConnectionOptions, 10000, config.DYNAMODB_READ_THROUGHPUT);
+        const migrationJob = new MigrationJob(config.DYNAMODB_TABLE_NAME, config.MONGODB_COLLECTION_NAME, config.MONGODB_DATABASE_NAME,sourceConnectionOptions,targetConnectionOptions, 1000, config.DYNAMODB_READ_THROUGHPUT);
         migrationJob.setSourcefilterExpression(metadata.filterExpression, metadata.expressionAttributeNames, metadata.expressionAttributeValues);
 
         if (segmentNum && totalSegments) {
             migrationJob.setParallelism(segmentNum, totalSegments);
 	}
+        if (lastEvalKey) {
+            migrationJob.setStartingKey(lastEvalKey);
+        }
         if (metadata.filterFunction) {
             migrationJob.setFilterFunction(metadata.filterFunction);
         }

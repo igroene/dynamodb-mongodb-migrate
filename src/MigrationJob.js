@@ -20,6 +20,7 @@ class MigrationJob {
         this.expressionAttributeValues = null;
 	this.segment = null;
 	this.totalSegments = null;
+	this.lastEvalKey = null;
         this.dynamoDbReadThroughput = dynamoDbReadThroughput ? Number(dynamoDbReadThroughput) : 25;
         this.limiter = new RateLimiter(this.dynamoDbReadThroughput, 1000);
         this._removeTokens = (tokenCount) => {
@@ -50,18 +51,23 @@ class MigrationJob {
 	this.totalSegments = totalSegments;
    }
 
+   setStartingKey(key) {
+       this.lastEvalKey = key;
+   }
+
     run() {
         let ctx = this;
         return new Promise(async (resolve, reject) => {
             try {
                 let lastEvalKey, startTime, endTime, totalItemCount = 0, iteration = 1, permitsToConsume = 1;
+                lastEvalKey = this.lastEvalKey;
                 do {
                     startTime = new Date().getTime();
                     await ctx._removeTokens(permitsToConsume);
                     let sourceItemResponse = await ctx.dynamoDBDAO.scan(ctx.filterExpression, ctx.expressionAttributeNames, ctx.expressionAttributeValues, lastEvalKey, ctx.dynamodbEvalLimit, ctx.segment, ctx.totalSegments);
                     totalItemCount += sourceItemResponse.Count;
                     let consumedCapacity = sourceItemResponse.ConsumedCapacity.CapacityUnits;
-                    console.log('Consumed capacity ', consumedCapacity);
+                    //console.log('Consumed capacity ', consumedCapacity);
                     console.log('Received ', sourceItemResponse.Count, ' items at iteration ', iteration, ' and total of ', totalItemCount, ' items received');
                     permitsToConsume = Math.round(consumedCapacity - 1);
                     if (permitsToConsume < 1) {
@@ -80,7 +86,7 @@ class MigrationJob {
                     	}
 		        catch(e) {
                             if ('result' in e) {
-                                console.log(e.result.result.writeErrors);
+                                console.error(e.result.result.writeErrors);
                                 console.log('Inserted mongodb doc count : ', e.result.result.nInserted);
                             }
                             else {
@@ -94,7 +100,7 @@ class MigrationJob {
                         lastEvalKey = null;
                     }
                     endTime = new Date().getTime();
-                    console.log('Loop completion time : ', endTime - startTime, ' ms');
+                    console.log('Loop completion time : ', endTime - startTime, ' ms - ', 'LastEvalKey: ', lastEvalKey);
                     iteration++;
                 } while (lastEvalKey);
                 console.log('Migration completed');
