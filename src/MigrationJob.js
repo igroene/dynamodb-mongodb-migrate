@@ -60,7 +60,7 @@ class MigrationJob {
         return new Promise(async (resolve, reject) => {
             try {
                 let lastEvalKey, startTime, endTime, totalItemCount = 0, iteration = 1, permitsToConsume = 1;
-                lastEvalKey = this.lastEvalKey;
+                lastEvalKey = JSON.parse(this.lastEvalKey);
                 do {
                     startTime = new Date().getTime();
                     await ctx._removeTokens(permitsToConsume);
